@@ -1,0 +1,37 @@
+#!/bin/bash
+source ./bits/bootstrap/logging
+
+#-----------
+# Configurations
+#-----------
+
+LAUNCHER_OWNER=${LAUNCHER_OWNER-$USER}
+
+export LAUNCHER_DIR=${LAUNCHER_DIR-/var/local}
+export GITLAB_LAUNCHER_DIR=${GITLAB_LAUNCHER_DIR-$LAUNCHER_DIR/apps/${GITLAB_NAME}}
+export GITLAB_HTTP_PORT=${GITLAB_HTTP_PORT-80}
+
+#-----------
+# Install Script
+#-----------
+
+notify "Installing gitlab app ..."
+
+OWNER=$LAUNCHER_OWNER ./bits/bootstrap/mkdir GITLAB_LAUNCHER_DIR $GITLAB_LAUNCHER_DIR/bin
+OWNER=$LAUNCHER_OWNER LAUNCHER_DIR=$GITLAB_LAUNCHER_DIR BIT=gitlab ./bits/docker/copydockerfile
+
+OWNER=$LAUNCHER_OWNER \
+  TEMPLATE=./bits/gitlab/files/bin \
+  LOCATION=$GITLAB_LAUNCHER_DIR/bin \
+  ./bits/docker/copyallif \
+  @GITLAB_SERVER@ $GITLAB_SERVER
+
+OWNER=$LAUNCHER_OWNER \
+  TEMPLATE=./bits/gitlab/files/gitlab.dockerfile \
+  LOCATION=$GITLAB_LAUNCHER_DIR/Dockerfile \
+  ./bits/docker/copyif
+
+LAUNCHER_DIR=$GITLAB_LAUNCHER_DIR NAME=gitlab ./bits/docker/build
+NAME=gitlab DIR=$GITLAB_LAUNCHER_DIR BIT=gitlab ./bits/docker/helpers
+
+notify "DONE, Installing gitlab app."

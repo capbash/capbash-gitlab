@@ -1,0 +1,12 @@
+#!/bin/bash
+mkdir -p ./nodes
+
+printf "%b" "#!/bin/bash
+
+./bits/gitlab/install
+" > ./nodes/gitlab
+
+chmod 755 ./nodes/gitlab
+
+capbash install deploykeys
+capbash install docker
