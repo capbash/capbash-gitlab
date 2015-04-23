@@ -17,18 +17,17 @@ export DATA_DIR=${DATA_DIR-/var/local/data}
 export GITLAB_DATA_DIR=${GITLAB_DATA_DIR-$DATA_DIR/gitlab}
 export GITLAB_PORT=${GITLAB_PORT-10080}
 export GITLAB_SSH_PORT=${GITLAB_SSH_PORT-10022}
+export GITLAB_CI_PORT=${GITLAB_CI_PORT-11080}
 
 export GITLAB_DB_USER=${GITLAB_DB_USER-$POSTGRES_ADMIN_USERNAME}
 export GITLAB_DB_PASSWORD=${GITLAB_DB_PASSWORD-$POSTGRES_ADMIN_PASSWORD}
 
-export GITLAB_CI_PORT=${GITLAB_CI_PORT-11080}
 export GITLAB_CI_DATA_DIR=${GITLAB_CI_DATA_DIR-$DATA_DIR/gitlab_ci}
 
 export GITLAB_APP_ID=${GITLAB_APP_ID-}
 export GITLAB_APP_SECRET=${GITLAB_APP_SECRET-}
 
 GITLAB_OUTPUT=/tmp/gitlab-install.log
-
 
 #-----------
 # Install Script
@@ -38,7 +37,6 @@ notify "Installing gitlab app ..."
 
 OWNER=$LAUNCHER_OWNER ./bits/bootstrap/mkdir GITLAB_LAUNCHER_DIR GITLAB_DATA_DIR $GITLAB_LAUNCHER_DIR/bin $GITLAB_LAUNCHER_DIR/src
 NAME=gitlab IMAGE_NAME=a4word/gitlab:latest DIR=$GITLAB_LAUNCHER_DIR BIT=gitlab ./bits/docker/helpers
-
 
 OWNER=$LAUNCHER_OWNER \
   TEMPLATE=./bits/bootstrap/logging \
