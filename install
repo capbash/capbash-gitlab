@@ -12,6 +12,7 @@ export GITLAB_LAUNCHER_DIR=${GITLAB_LAUNCHER_DIR-$LAUNCHER_DIR/gitlab}
 export GITLAB_HTTP_PORT=${GITLAB_HTTP_PORT-80}
 export GITLAB_VERSION=${GITLAB_VERSION-7.9.4}
 export GITLAB_URL=${GITLAB_URL-localhost}
+export GITLAB_SSL_URL=${GITLAB_SSL_URL-localhost}
 export GITLAB_CI_URL=${GITLAB_CI_URL-localhost}
 export DATA_DIR=${DATA_DIR-/var/local/data}
 export GITLAB_DATA_DIR=${GITLAB_DATA_DIR-$DATA_DIR/gitlab}
@@ -37,6 +38,10 @@ GITLAB_OUTPUT=/tmp/gitlab-install.log
 #-----------
 
 notify "Installing gitlab app ..."
+
+OWNER=$LAUNCHER_OWNER DIR=$GITLAB_LAUNCHER_DIR/src NAME=gitlab URL=$GITLAB_SSL_URL \
+  ./bits/gitlab/gencert
+[ $? -ne 0 ] && exit 1
 
 OWNER=$LAUNCHER_OWNER ./bits/bootstrap/mkdir GITLAB_LAUNCHER_DIR GITLAB_DATA_DIR $GITLAB_LAUNCHER_DIR/src
 NAME=gitlab VERSION=$GITLAB_VERSION IMAGE_NAME=sameersbn/gitlab:$GITLAB_VERSION \

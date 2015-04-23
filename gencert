@@ -1,0 +1,35 @@
+#!/bin/bash
+source ./bits/bootstrap/logging
+
+#-----------
+# Configurations
+#-----------
+
+# https://github.com/sameersbn/docker-gitlab#ssl
+
+DIR=${DIR-/tmp/cert}
+OWNER=${OWNER-$USER}
+URL=${URL-localhost}
+NAME=${NAME-$URL}
+
+GENCERT_OUTPUT=/tmp/gencert_${NAME}.log
+
+OWNER=$OWNER ./bits/bootstrap/mkdir $DIR
+
+if [[ ! -e "$DIR/${NAME}.key" ]]; then
+  notify "  -- generating SSL keys"
+  SCRIPT_OUTPUT=$(cd $DIR && openssl genrsa -out ${NAME}.key 4096 > $GENCERT_OUTPUT 2>&1)
+  ERROR="Unable to generate $NAME keys due to ..." ./bits/bootstrap/failonerrors $? $GENCERT_OUTPUT
+  [ $? -ne 0 ] && exit 1
+else
+  debug "  -- Re-using $DIR/${NAME}.key"
+fi
+
+if [[ ! -e "$DIR/${NAME}.crt" ]]; then
+  notify "  -- Generating and signing certificate"
+  SCRIPT_OUTPUT=$(cd $DIR && openssl req -new -key $NAME.key -days 365 -nodes -x509 -subj "/C=US/ST=Denial/L=Springfield/O=Dis/CN=$URL" -out $NAME.crt > $GENCERT_OUTPUT 2>&1)
+  ERROR="Unable to generate ${NAME}.crt due to ..." ./bits/bootstrap/failonerrors $? $GENCERT_OUTPUT
+  [ $? -ne 0 ] && exit 1
+else
+  debug "  -- Re-using $DIR/${NAME}.crt"
+fi
