@@ -18,7 +18,7 @@ if [[ "$CONTAINER_ID" == "" ]]; then
     -v $(which docker):/bin/docker \
     --link postgres:postgresql \
     --link redis:redisio \
-    a4word/gitlab 2> /dev/null > @GITLAB_LAUNCHER_DIR@/container.pid
+    sameersbn/gitlab:@GITLAB_VERSION@ 2> /dev/null > @GITLAB_LAUNCHER_DIR@/container.pid
 
   notify "DONE, Starting gitlab"
 else
@@ -44,7 +44,7 @@ if [[ "$CONTAINER_ID" == "" ]]; then
     --link gitlab:gitlab \
     --link postgres:postgresql \
     --link redis:redisio \
-    sameersbn/gitlab-ci  2> /dev/null > @GITLAB_LAUNCHER_DIR@/container-ci.pid
+    sameersbn/gitlab-ci:@GITLAB_CI_VERSION@  2> /dev/null > @GITLAB_LAUNCHER_DIR@/container-ci.pid
 
   notify "DONE, Starting gitlab"
 else
