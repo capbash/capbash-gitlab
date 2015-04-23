@@ -24,10 +24,13 @@ capbash install gitlab
 
 The available configurations include:
 
+http://ci.localnet:11080/user_sessions/callback
+
 ```
 TBD
 ```
 
+For the instructions at https://peteris.rocks/blog/docker-gitlab-and-gitlab-ci/
 
 # Deploy to Remote Server #
 

@@ -1,0 +1,28 @@
+#!/bin/bash
+source logging
+
+# https://gitlab.com/gitlab-org/omnibus-gitlab/issues/160
+cp /opt/gitlab/embedded/cookbooks/runit/files/default/gitlab-runsvdir.conf /etc/init/
+initctl start gitlab-runsvdir
+# sudo gitlab-ctl reconfigure
+
+
+GITLAB_LOG_DIR=/opt/log/gitlab
+GITLAB_LOG=$GITLAB_LOG_DIR/startup.log
+
+mkdir -p $GITLAB_LOG_DIR
+
+mkdir -p $GITLAB_LOG_DIR $DATA_DIR/backups $DATA_DIR/reports
+notify "Installing gitlab"
+notify "  -- Reconfigure gitlab ($GITLAB_LOG_DIR/gitlab.pid)"
+nohup gitlab-ctl reconfigure > $GITLAB_LOG 2>&1 & echo $! > $GITLAB_LOG_DIR/gitlab.pid
+notify "  -- Loading gitlab (might take a few minutes) ..."
+tail -fn+1 $GITLAB_LOG | while read LOGLINE
+do
+  notify "  ::: ${LOGLINE}"
+  if [[ "${LOGLINE}" == *"in your browser"* ]]; then
+    pkill -P $$ tail
+    break
+  fi
+done
+notify "DONE, Starting gitlab"

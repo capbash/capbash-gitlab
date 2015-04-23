@@ -1,0 +1,22 @@
+#!/bin/bash
+source logging
+
+CONTAINER_ID=`PID_NAME=container.pid @GITLAB_LAUNCHER_DIR@/running`
+if [[ "$CONTAINER_ID" == '' ]]; then
+  debug 'gitlab container already stopped, nothing to do.'
+else
+  notify 'Stopping gitlab...'
+  docker stop $CONTAINER_ID > /dev/null 2>&1
+  rm -f @GITLAB_LAUNCHER_DIR@/container.pid
+  notify 'DONE Stopping gitlab.'
+fi
+
+CONTAINER_ID=`PID_NAME=container-ci.pid @GITLAB_LAUNCHER_DIR@/running`
+if [[ "$CONTAINER_ID" == '' ]]; then
+  debug 'gitlab-ci container already stopped, nothing to do.'
+else
+  notify 'Stopping gitlab-ci...'
+  docker stop $CONTAINER_ID > /dev/null 2>&1
+  rm -f @GITLAB_LAUNCHER_DIR@/container-ci.pid
+  notify 'DONE Stopping gitlab-ci.'
+fi

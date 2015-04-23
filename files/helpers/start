@@ -1,0 +1,53 @@
+#!/bin/bash
+source logging
+
+CONTAINER_ID=`PID_NAME=container.pid @GITLAB_LAUNCHER_DIR@/running`
+if [[ "$CONTAINER_ID" == "" ]]; then
+  notify "Starting gitlab"
+
+  docker rm --force -v gitlab > /dev/null 2>&1
+  docker run --name=gitlab -d \
+    -e "GITLAB_PORT=@GITLAB_PORT@" -e "GITLAB_SSH_PORT=@GITLAB_SSH_PORT@" \
+    -e 'GITLAB_BACKUPS=daily' \
+    -e "DB_USER=@GITLAB_DB_USER@" \
+    -e "DB_PASS=@GITLAB_DB_PASSWORD@" \
+    -e "DB_NAME=gitlab" \
+    -p @GITLAB_SSH_PORT@:22 -p @GITLAB_PORT@:80 \
+    -v @GITLAB_DATA_DIR@:/home/git/data \
+    -v /var/run/docker.sock:/run/docker.sock \
+    -v $(which docker):/bin/docker \
+    --link postgres:postgresql \
+    --link redis:redisio \
+    a4word/gitlab 2> /dev/null > @GITLAB_LAUNCHER_DIR@/container.pid
+
+  notify "DONE, Starting gitlab"
+else
+  debug "Container gitlab already running, @GITLAB_LAUNCHER_DIR@/restart to restart it"
+fi
+
+CONTAINER_ID=`PID_NAME=container-ci.pid @GITLAB_LAUNCHER_DIR@/running`
+if [[ "$CONTAINER_ID" == "" ]]; then
+  notify "Starting gitlab-ci"
+
+  docker rm -v gitlab-ci > /dev/null 2>&1
+  docker run --name=gitlab-ci -d \
+    -e 'GITLAB_URL=@GITLAB_URL@' \
+    -e "DB_USER=@GITLAB_DB_USER@" \
+    -e "DB_PASS=@GITLAB_DB_PASSWORD@" \
+    -e "DB_NAME=gitlab_ci" \
+    -e "GITLAB_APP_ID=@GITLAB_APP_ID@" \
+    -e "GITLAB_APP_SECRET=@GITLAB_APP_SECRET@" \
+    -p @GITLAB_CI_PORT@:80 \
+    -v @GITLAB_CI_DATA_DIR@:/home/gitlab_ci/data \
+    -v /var/run/docker.sock:/run/docker.sock \
+    -v $(which docker):/bin/docker \
+    --link gitlab:gitlab \
+    --link postgres:postgresql \
+    --link redis:redisio \
+    sameersbn/gitlab-ci  2> /dev/null > @GITLAB_LAUNCHER_DIR@/container-ci.pid
+
+  notify "DONE, Starting gitlab"
+else
+  debug "Container gitlab-ci already running, @GITLAB_LAUNCHER_DIR@/restart to restart it"
+fi
+

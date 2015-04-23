@@ -1,1 +1,10 @@
-docker run -i -t
+docker run -it
+  -e "GITLAB_PORT=$GITLAB_PORT" -e "GITLAB_SSH_PORT=$GITLAB_SSH_PORT"
+  -e 'GITLAB_BACKUPS=daily'
+  -e "DB_USER=$GITLAB_DB_USER"
+  -e "DB_PASS=$GITLAB_DB_PASSWORD"
+  -v $GITLAB_DATA_DIR:/home/git/data
+  -v /var/run/docker.sock:/run/docker.sock
+  -v $(which docker):/bin/docker
+  --link postgres:postgresql
+  --link redis:redisio
