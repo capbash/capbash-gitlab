@@ -38,14 +38,9 @@ GITLAB_OUTPUT=/tmp/gitlab-install.log
 
 notify "Installing gitlab app ..."
 
-OWNER=$LAUNCHER_OWNER ./bits/bootstrap/mkdir GITLAB_LAUNCHER_DIR GITLAB_DATA_DIR $GITLAB_LAUNCHER_DIR/bin $GITLAB_LAUNCHER_DIR/src
+OWNER=$LAUNCHER_OWNER ./bits/bootstrap/mkdir GITLAB_LAUNCHER_DIR GITLAB_DATA_DIR $GITLAB_LAUNCHER_DIR/src
 NAME=gitlab VERSION=$GITLAB_VERSION IMAGE_NAME=sameersbn/gitlab:$GITLAB_VERSION \
   DIR=$GITLAB_LAUNCHER_DIR BIT=gitlab ./bits/docker/helpers
-
-OWNER=$LAUNCHER_OWNER \
-  TEMPLATE=./bits/bootstrap/logging \
-  LOCATION=$GITLAB_LAUNCHER_DIR/bin/logging \
-  ./bits/docker/copyif
 
 OWNER=$LAUNCHER_OWNER \
   TEMPLATE=./bits/gitlab/files/helpers \
